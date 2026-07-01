@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>盒饭预定</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 1.6rem;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.price-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.meal-type-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.meal-type-btn {
+  flex: 1;
+  padding: 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.meal-type-btn.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: scale(1.02);
+}
+
+.meal-type-btn:hover:not(.active) {
+  border-color: #667eea;
+  background: #f8f9ff;
+}
+
+.qty-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+}
+
+.qty-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+  background: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn:hover {
+  border-color: #667eea;
+  background: #f8f9ff;
+}
+
+.qty-btn:active {
+  transform: scale(0.95);
+}
+
+.qty-display {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  min-width: 60px;
+  text-align: center;
+}
+
+.qty-unit {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.total-display {
+  text-align: center;
+  padding: 16px;
+  background: #f8f9ff;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.total-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.total-amount {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Success State */
+.success-state {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-state.show {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.success-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.success-msg {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.sync-notice {
+  display: inline-block;
+  background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+  color: #1a5f1a;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.success-detail {
+  background: #f8f9ff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.success-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.success-detail-row:last-child {
+  border-bottom: none;
+}
+
+.success-detail-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.success-detail-value {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.new-order-btn {
+  padding: 12px 32px;
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  background: white;
+  color: #667eea;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.new-order-btn:hover {
+  background: #667eea;
+  color: white;
+}
+
+/* Form State */
+.form-state {
+  display: block;
+}
+
+.form-state.hide {
+  display: none;
+}
+
+/* Date display */
+.date-display {
+  text-align: center;
+  padding: 12px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #0369a1;
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Form State -->
+  <div class="form-state" id="formState">
+    <div class="header">
+      <h1>🍱 盒饭预定</h1>
+      <p>选择餐别和份数，提交即可</p>
+      <div class="price-tag">单价 ¥12/份</div>
+    </div>
+
+    <div class="date-display" id="dateDisplay"></div>
+
+    <div class="form-group">
+      <label>选择餐别</label>
+      <div class="meal-type-selector">
+        <button type="button" class="meal-type-btn" data-type="午餐" onclick="selectMealType(this)">
+          🌞 午餐
+        </button>
+        <button type="button" class="meal-type-btn active" data-type="晚餐" onclick="selectMealType(this)">
+          🌙 晚餐
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>选择份数</label>
+      <div class="qty-selector">
+        <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+        <span class="qty-display" id="qtyDisplay">1</span>
+        <span class="qty-unit">份</span>
+        <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+
+    <div class="total-display">
+      <div class="total-label">合计金额</div>
+      <div class="total-amount" id="totalAmount">¥12.00</div>
+    </div>
+
+    <button type="button" class="submit-btn" onclick="submitOrder()">
+      确认预定
+    </button>
+  </div>
+
+  <!-- Success State -->
+  <div class="success-state" id="successState">
+    <div class="success-icon">✅</div>
+    <div class="success-title">预定成功！</div>
+    <div class="success-msg">已通知老板准备，请准时来取</div>
+    <div class="sync-notice">🔄 订单已同步到老板的工作台</div>
+    <div class="success-detail" id="successDetail"></div>
+    <button type="button" class="new-order-btn" onclick="resetForm()">
+      再订一单
+    </button>
+  </div>
+</div>
+
+<script>
+// State
+let selectedMealType = '晚餐';
+let quantity = 1;
+const PRICE = 12;
+
+// Init
+function init() {
+  updateDateDisplay();
+  updateTotal();
+}
+
+function updateDateDisplay() {
+  const now = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+  document.getElementById('dateDisplay').textContent = '📅 ' + now.toLocaleDateString('zh-CN', options);
+}
+
+function selectMealType(btn) {
+  document.querySelectorAll('.meal-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedMealType = btn.dataset.type;
+}
+
+function changeQty(delta) {
+  quantity = Math.max(1, Math.min(20, quantity + delta));
+  document.getElementById('qtyDisplay').textContent = quantity;
+  updateTotal();
+}
+
+function updateTotal() {
+  const total = quantity * PRICE;
+  document.getElementById('totalAmount').textContent = '¥' + total.toFixed(2);
+}
+
+function submitOrder() {
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0];
+  const total = quantity * PRICE;
+  
+  // Create order object
+  const order = {
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 6),
+    date: dateStr,
+    mealType: selectedMealType,
+    quantity: quantity,
+    unitPrice: PRICE,
+    totalAmount: total,
+    notes: '来自下单链接',
+    createdAt: now.toISOString()
+  };
+  
+  // Save to cloud (jsonblob)
+  saveOrderToCloud(order);
+  
+  // Also save to localStorage as backup
+  const meals = JSON.parse(localStorage.getItem('sw_meal') || '[]');
+  meals.unshift(order);
+  localStorage.setItem('sw_meal', JSON.stringify(meals));
+  
+  // Show success
+  const detailHtml = `
+    <div class="success-detail-row">
+      <span class="success-detail-label">日期</span>
+      <span class="success-detail-value">${formatDate(dateStr)}</span>
+    </div>
+    <div class="success-detail-row">
+      <span class="success-detail-label">餐别</span>
+      <span class="success-detail-value">${selectedMealType}</span>
+    </div>
+    <div class="success-detail-row">
+      <span class="success-detail-label">份数</span>
+      <span class="success-detail-value">${quantity} 份</span>
+    </div>
+    <div class="success-detail-row">
+      <span class="success-detail-label">金额</span>
+      <span class="success-detail-value" style="color:#667eea;font-size:1.1rem;">¥${total.toFixed(2)}</span>
+    </div>
+  `;
+  document.getElementById('successDetail').innerHTML = detailHtml;
+  document.getElementById('formState').classList.add('hide');
+  document.getElementById('successState').classList.add('show');
+}
+
+// Cloud sync functions
+const CLOUD_BLOB_ID = '019f192d-d2e1-7417-962d-4fec05382aa7';
+const CLOUD_URL = `https://jsonblob.com/api/jsonBlob/${CLOUD_BLOB_ID}`;
+
+async function saveOrderToCloud(order) {
+  try {
+    // Get current data
+    const response = await fetch(CLOUD_URL, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    let data = await response.json();
+    
+    // Add new order
+    if (!data.orders) data.orders = [];
+    data.orders.unshift(order);
+    
+    // Save back
+    await fetch(CLOUD_URL, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    console.log('订单已同步到云端');
+  } catch (error) {
+    console.error('云端同步失败:', error);
+  }
+}
+
+function resetForm() {
+  quantity = 1;
+  document.getElementById('qtyDisplay').textContent = quantity;
+  updateTotal();
+  document.getElementById('formState').classList.remove('hide');
+  document.getElementById('successState').classList.remove('show');
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  return `${d.getMonth()+1}月${d.getDate()}日 ${days[d.getDay()]}`;
+}
+
+init();
+</script>
+
+</body>
+</html>
