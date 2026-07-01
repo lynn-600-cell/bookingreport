@@ -449,29 +449,51 @@ function submitOrder() {
 // Cloud sync functions
 const CLOUD_BLOB_ID = '019f192d-d2e1-7417-962d-4fec05382aa7';
 const CLOUD_URL = `https://jsonblob.com/api/jsonBlob/${CLOUD_BLOB_ID}`;
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
 async function saveOrderToCloud(order) {
   try {
-    // Get current data
-    const response = await fetch(CLOUD_URL, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    });
+    // Get current data - try direct first, then proxy
+    let response;
+    try {
+      response = await fetch(CLOUD_URL, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+    } catch (e) {
+      response = await fetch(CORS_PROXY + encodeURIComponent(CLOUD_URL));
+    }
     let data = await response.json();
     
     // Add new order
     if (!data.orders) data.orders = [];
     data.orders.unshift(order);
     
-    // Save back
-    await fetch(CLOUD_URL, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
+    // Save back - try direct first
+    try {
+      await fetch(CLOUD_URL, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+    } catch (e) {
+      console.warn('Direct save failed, trying proxy...');
+      // Proxy may not support PUT, but try anyway
+      try {
+        await fetch(CORS_PROXY + encodeURIComponent(CLOUD_URL), {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+      } catch (e2) {
+        console.warn('Cloud save failed from this domain');
+      }
+    }
     
     console.log('订单已同步到云端');
   } catch (error) {
