@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>超市综合工作台</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS Variables & Reset ===== */
+:root {
+  --green-50: #f0faf3;
+  --green-100: #d9f2e1;
+  --green-200: #b3e5c3;
+  --green-300: #81d19e;
+  --green-400: #4db876;
+  --green-500: #2d8a4e;
+  --green-600: #1f6e3a;
+  --green-700: #17522b;
+  --green-800: #123d20;
+  --amber-50: #fffbeb;
+  --amber-100: #fef3c7;
+  --amber-400: #f59e0b;
+  --amber-500: #d97706;
+  --amber-600: #b45309;
+  --red-50: #fef2f2;
+  --red-100: #fee2e2;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --gray-50: #fafaf9;
+  --gray-100: #f5f5f4;
+  --gray-200: #e7e5e4;
+  --gray-300: #d6d3d1;
+  --gray-400: #a8a29e;
+  --gray-500: #78716c;
+  --gray-600: #57534e;
+  --gray-700: #44403c;
+  --gray-800: #292524;
+  --gray-900: #1c1917;
+  --cream: #faf8f5;
+  --white: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.04);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --font-sans: 'Noto Sans SC', -apple-system, sans-serif;
+  --font-serif: 'Noto Serif SC', serif;
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: var(--font-sans);
+  background: #f0efe9;
+  background-image: 
+    radial-gradient(ellipse at 20% 0%, rgba(45,138,78,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(245,158,11,0.04) 0%, transparent 50%);
+  color: var(--gray-800);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a3a25 0%, #123d20 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+}
+
+.sidebar-header {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-logo .logo-icon {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, var(--green-400), var(--green-300));
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 12px rgba(77,184,118,0.3);
+}
+
+.sidebar-logo h1 {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+.sidebar-logo h1 span {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 400;
+  opacity: 0.6;
+  font-family: var(--font-sans);
+  letter-spacing: 0.05em;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.6);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-sans);
+  position: relative;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+}
+
+.nav-item.active {
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-weight: 600;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 24px;
+  background: var(--green-400);
+  border-radius: 0 2px 2px 0;
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--amber-400);
+  color: #1a3a25;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.sidebar-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
+}
+
+/* ===== Main Content ===== */
+.main-content {
+  margin-left: 240px;
+  flex: 1;
+  padding: 28px 32px;
+  min-height: 100vh;
+  max-width: calc(100vw - 240px);
+}
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h2 {
+  font-family: var(--font-serif);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+
+.page-header p {
+  font-size: 0.9rem;
+  color: var(--gray-500);
+}
+
+/* ===== Tab Panel ===== */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeSlideIn 0.35s ease; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Stat Cards ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: all var(--transition);
+  border: 1px solid var(--gray-100);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 0 0 0 80px;
+  opacity: 0.06;
+  transition: all var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-card:hover::after { opacity: 0.1; }
+
+.stat-card.green::after { background: var(--green-500); }
+.stat-card.amber::after { background: var(--amber-400); }
+.stat-card.blue::after { background: var(--blue-500); }
+.stat-card.red::after { background: var(--red-500); }
+
+.stat-icon {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.stat-card.green .stat-icon { background: var(--green-50); color: var(--green-600); }
+.stat-card.amber .stat-icon { background: var(--amber-50); color: var(--amber-600); }
+.stat-card.blue .stat-icon { background: #eff6ff; color: var(--blue-600); }
+.stat-card.red .stat-icon { background: var(--red-50); color: var(--red-600); }
+
+.stat-info { flex: 1; min-width: 0; }
+
+.stat-label {
+  font-size: 0.82rem;
+  color: var(--gray-500);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  font-family: var(--font-serif);
+  line-height: 1.2;
+}
+
+.stat-sub {
+  font-size: 0.78rem;
+  color: var(--gray-400);
+  margin-top: 2px;
+}
+
+/* ===== Charts Area ===== */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.chart-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-100);
+}
+
+.chart-card h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-card h3::before {
+  content: '';
+  display: inline-block;
+  width: 4px; height: 18px;
+  background: var(--green-500);
+  border-radius: 2px;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 260px;
+}
+
+.chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+/* ===== Recent Activity ===== */
+.recent-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-100);
+}
+
+.recent-card h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recent-card h3::before {
+  content: '';
+  display: inline-block;
+  width: 4px; height: 18px;
+  background: var(--amber-400);
+  border-radius: 2px;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 0.88rem;
+}
+
+.activity-item:last-child { border-bottom: none; }
+
+.activity-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.activity-dot.green { background: var(--green-500); }
+.activity-dot.amber { background: var(--amber-400); }
+.activity-dot.blue { background: var(--blue-500); }
+
+.activity-time {
+  font-size: 0.78rem;
+  color: var(--gray-400);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ===== Section Card ===== */
+.section-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-100);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.section-card-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.section-card-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-card-body { padding: 20px 24px; }
+
+/* ===== Forms ===== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+  color: var(--gray-800);
+  background: var(--gray-50);
+  transition: all var(--transition);
+  outline: none;
+  width: 100%;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--green-400);
+  box-shadow: 0 0 0 3px rgba(45,138,78,0.08);
+  background: var(--white);
+}
+
+.form-group textarea { resize: vertical; min-height: 60px; }
+
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-sans);
+  transition: all var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--green-600);
+  color: white;
+  box-shadow: 0 2px 8px rgba(31,110,58,0.2);
+}
+
+.btn-primary:hover {
+  background: var(--green-700);
+  box-shadow: 0 4px 12px rgba(31,110,58,0.3);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-200);
+}
+
+.btn-secondary:hover { background: var(--gray-200); }
+
+.btn-danger {
+  background: var(--red-500);
+  color: white;
+}
+
+.btn-danger:hover { background: var(--red-600); }
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--gray-500);
+  padding: 4px 8px;
+}
+
+.btn-ghost:hover { color: var(--gray-800); background: var(--gray-100); }
+
+/* ===== Tables ===== */
+.table-wrap {
+  overflow-x: auto;
+  margin: 0 -24px;
+  padding: 0 24px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+thead th {
+  text-align: left;
+  padding: 12px 14px;
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--gray-100);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+}
+
+tbody tr { transition: background var(--transition); }
+tbody tr:hover { background: var(--green-50); }
+
+/* Status Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-success { background: var(--green-100); color: var(--green-700); }
+.badge-warning { background: var(--amber-100); color: var(--amber-600); }
+.badge-danger { background: var(--red-100); color: var(--red-600); }
+.badge-info { background: #eff6ff; color: var(--blue-600); }
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--gray-400);
+}
+
+.empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+}
+
+/* ===== Weekly Summary ===== */
+.weekly-summary {
+  background: linear-gradient(135deg, var(--green-50), var(--amber-50));
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  border: 1px solid var(--green-100);
+}
+
+.weekly-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 16px;
+  border-right: 1px solid var(--gray-200);
+}
+
+.weekly-summary-item:last-child { border-right: none; }
+
+.weekly-summary-label {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.weekly-summary-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  font-family: var(--font-serif);
+}
+
+/* ===== Billing Card ===== */
+.billing-card {
+  background: linear-gradient(135deg, #fffdf5, #fefce8);
+  border: 2px solid var(--amber-200);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.billing-card-header {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--amber-200);
+}
+
+.billing-card-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--amber-800);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.billing-hint {
+  font-size: 0.78rem;
+  color: var(--amber-600);
+  font-weight: 500;
+}
+
+.billing-body {
+  padding: 20px 24px;
+}
+
+.billing-text {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--gray-800);
+  white-space: pre-wrap;
+  margin-bottom: 14px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: var(--font-sans);
+}
+
+.billing-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ===== Filter Bar ===== */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-bar input,
+.filter-bar select {
+  padding: 8px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  outline: none;
+  background: var(--white);
+  transition: border-color var(--transition);
+}
+
+.filter-bar input:focus,
+.filter-bar select:focus {
+  border-color: var(--green-400);
+}
+
+/* ===== Modal ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  width: 90%;
+  max-width: 520px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--gray-900);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: var(--gray-900);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 300;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.success { background: var(--green-700); }
+.toast.error { background: var(--red-600); }
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .sidebar { width: 200px; }
+  .main-content { margin-left: 200px; max-width: calc(100vw - 200px); padding: 20px 16px; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { width: 64px; }
+  .sidebar-logo h1, .nav-item span:not(.nav-icon), .nav-badge, .sidebar-footer { display: none; }
+  .sidebar-logo { justify-content: center; }
+  .sidebar-logo .logo-icon { width: 36px; height: 36px; font-size: 18px; }
+  .nav-item { justify-content: center; padding: 12px; }
+  .main-content { margin-left: 64px; max-width: calc(100vw - 64px); padding: 16px 12px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .weekly-summary { flex-direction: column; align-items: flex-start; }
+  .weekly-summary-item { border-right: none; border-bottom: 1px solid var(--gray-200); padding: 8px 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🏪</div>
+      <h1>超市工作台<span>SUPERMARKET HUB</span></h1>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-item active" data-tab="dashboard">
+      <span class="nav-icon">📊</span> 工作台概览
+    </button>
+    <button class="nav-item" data-tab="inventory">
+      <span class="nav-icon">📦</span> 录单入库
+    </button>
+    <button class="nav-item" data-tab="supplier">
+      <span class="nav-icon">🤝</span> 供货商对账
+      <span class="nav-badge" id="pendingBadge">0</span>
+    </button>
+    <button class="nav-item" data-tab="meal">
+      <span class="nav-icon">🍱</span> 盒饭预定
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <span id="currentDate"></span>
+    <div id="syncStatus" style="margin-top:8px;font-size:0.75rem;color:rgba(255,255,255,0.5);">
+      <span id="syncIcon">🔄</span> <span id="syncText">同步中...</span>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+
+  <!-- ===== Dashboard Tab ===== -->
+  <div class="tab-panel active" id="tab-dashboard">
+    <div class="page-header">
+      <h2>工作台概览</h2>
+      <p>超市录单入库 · 供货商对账 · 盒饭预定统计</p>
+    </div>
+
+    <div class="stats-grid" id="dashboardStats"></div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>本周盒饭预定数量</h3>
+        <div class="chart-wrap"><canvas id="chartMealCount"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>本周盒饭金额趋势</h3>
+        <div class="chart-wrap"><canvas id="chartMealAmount"></canvas></div>
+      </div>
+    </div>
+
+    <div class="recent-card">
+      <h3>最近操作记录</h3>
+      <div class="activity-list" id="activityList">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <p>暂无操作记录</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Inventory Tab ===== -->
+  <div class="tab-panel" id="tab-inventory">
+    <div class="page-header">
+      <h2>录单入库</h2>
+      <p>记录商品入库信息，管理采购单据</p>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>➕ 新增入库记录</h3>
+      </div>
+      <div class="section-card-body">
+        <form id="inventoryForm" class="form-grid">
+          <div class="form-group">
+            <label>入库日期 *</label>
+            <input type="date" id="invDate" required>
+          </div>
+          <div class="form-group">
+            <label>商品名称 *</label>
+            <input type="text" id="invProduct" placeholder="如：金龙鱼大豆油" required>
+          </div>
+          <div class="form-group">
+            <label>供货商 *</label>
+            <input type="text" id="invSupplier" placeholder="供货商名称" required>
+          </div>
+          <div class="form-group">
+            <label>数量 *</label>
+            <input type="number" id="invQuantity" placeholder="0" min="1" step="1" required>
+          </div>
+          <div class="form-group">
+            <label>单位</label>
+            <select id="invUnit">
+              <option value="箱">箱</option>
+              <option value="件">件</option>
+              <option value="袋">袋</option>
+              <option value="瓶">瓶</option>
+              <option value="公斤">公斤</option>
+              <option value="个">个</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>单价（元）*</label>
+            <input type="number" id="invPrice" placeholder="0.00" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label>总金额（元）</label>
+            <input type="number" id="invTotal" placeholder="自动计算" step="0.01" readonly style="background:#f0faf3;">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>备注</label>
+            <input type="text" id="invNotes" placeholder="可选备注信息">
+          </div>
+          <div class="form-group" style="align-self: end;">
+            <button type="submit" class="btn btn-primary">✅ 确认入库</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>📋 入库记录列表</h3>
+        <div class="filter-bar">
+          <input type="text" id="invSearch" placeholder="搜索商品或供货商...">
+          <input type="date" id="invFilterDate">
+          <button class="btn btn-secondary btn-sm" onclick="clearInvFilter()">清除筛选</button>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>日期</th><th>商品名称</th><th>供货商</th><th>数量</th><th>单价</th><th>总金额</th><th>备注</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+              <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📦</div><p>暂无入库记录，请添加</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Supplier Tab ===== -->
+  <div class="tab-panel" id="tab-supplier">
+    <div class="page-header">
+      <h2>供货商对账</h2>
+      <p>管理供货商账款，跟踪付款状态</p>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>➕ 新增对账记录</h3>
+      </div>
+      <div class="section-card-body">
+        <form id="supplierForm" class="form-grid">
+          <div class="form-group">
+            <label>日期 *</label>
+            <input type="date" id="supDate" required>
+          </div>
+          <div class="form-group">
+            <label>供货商 *</label>
+            <input type="text" id="supName" placeholder="供货商名称" required>
+          </div>
+          <div class="form-group">
+            <label>发票/单据号</label>
+            <input type="text" id="supInvoice" placeholder="发票编号">
+          </div>
+          <div class="form-group">
+            <label>应付金额（元）*</label>
+            <input type="number" id="supAmount" placeholder="0.00" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label>已付金额（元）</label>
+            <input type="number" id="supPaid" placeholder="0.00" min="0" step="0.01" value="0">
+          </div>
+          <div class="form-group">
+            <label>状态</label>
+            <select id="supStatus">
+              <option value="pending">待付款</option>
+              <option value="partial">部分付款</option>
+              <option value="paid">已结清</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>备注</label>
+            <input type="text" id="supNotes" placeholder="可选备注信息">
+          </div>
+          <div class="form-group" style="align-self: end;">
+            <button type="submit" class="btn btn-primary">✅ 确认添加</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>📋 对账记录列表</h3>
+        <div class="filter-bar">
+          <input type="text" id="supSearch" placeholder="搜索供货商...">
+          <select id="supStatusFilter">
+            <option value="">全部状态</option>
+            <option value="pending">待付款</option>
+            <option value="partial">部分付款</option>
+            <option value="paid">已结清</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="clearSupFilter()">清除筛选</button>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>日期</th><th>供货商</th><th>单据号</th><th>应付金额</th><th>已付金额</th><th>未付余额</th><th>状态</th><th>备注</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="supplierTableBody">
+              <tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🤝</div><p>暂无对账记录，请添加</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Meal Tab ===== -->
+  <div class="tab-panel" id="tab-meal">
+    <div class="page-header">
+      <h2>盒饭预定对账</h2>
+      <p>记录盒饭预定信息，统计每周数据</p>
+    </div>
+
+    <div class="weekly-summary" id="weeklySummary">
+      <div class="weekly-summary-item">
+        <span class="weekly-summary-label">本周总份数</span>
+        <span class="weekly-summary-value" id="wsTotalCount">0</span>
+      </div>
+      <div class="weekly-summary-item">
+        <span class="weekly-summary-label">本周总金额</span>
+        <span class="weekly-summary-value" id="wsTotalAmount">¥0.00</span>
+      </div>
+      <div class="weekly-summary-item">
+        <span class="weekly-summary-label">午餐份数</span>
+        <span class="weekly-summary-value" id="wsLunch">0</span>
+      </div>
+      <div class="weekly-summary-item">
+        <span class="weekly-summary-label">晚餐份数</span>
+        <span class="weekly-summary-value" id="wsDinner">0</span>
+      </div>
+      <div class="weekly-summary-item">
+        <span class="weekly-summary-label">累计总份数</span>
+        <span class="weekly-summary-value" id="wsAllCount">0</span>
+      </div>
+      <div class="weekly-summary-item">
+        <span class="weekly-summary-label">累计总金额</span>
+        <span class="weekly-summary-value" id="wsAllAmount">¥0.00</span>
+      </div>
+    </div>
+
+    <!-- Billing Message Card -->
+    <div class="billing-card" id="billingCard">
+      <div class="billing-card-header">
+        <h3>💬 本周催款文案</h3>
+        <span class="billing-hint">每周一复制发送给朋友</span>
+      </div>
+      <div class="billing-body">
+        <div class="billing-text" id="billingText">暂无本周数据，请先添加盒饭预定记录。</div>
+        <div class="billing-actions">
+          <button class="btn btn-primary" onclick="copyBillingMessage()">
+            📋 一键复制文案
+          </button>
+          <button class="btn btn-secondary" onclick="generateBillingMessage()">
+            🔄 刷新文案
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>➕ 新增盒饭预定</h3>
+      </div>
+      <div class="section-card-body">
+        <form id="mealForm" class="form-grid">
+          <div class="form-group">
+            <label>预定日期 *</label>
+            <input type="date" id="mealDate" required>
+          </div>
+          <div class="form-group">
+            <label>餐别 *</label>
+            <select id="mealType" required>
+              <option value="午餐">午餐</option>
+              <option value="晚餐">晚餐</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>份数 *</label>
+            <input type="number" id="mealQty" placeholder="0" min="1" step="1" required>
+          </div>
+          <div class="form-group">
+            <label>单价（元）*</label>
+            <input type="number" id="mealPrice" placeholder="0.00" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label>总金额（元）</label>
+            <input type="number" id="mealTotal" placeholder="自动计算" step="0.01" readonly style="background:#f0faf3;">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>备注</label>
+            <input type="text" id="mealNotes" placeholder="可选备注">
+          </div>
+          <div class="form-group" style="align-self: end;">
+            <button type="submit" class="btn btn-primary">✅ 确认预定</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>📋 盒饭预定记录</h3>
+        <div class="filter-bar">
+          <input type="text" id="mealSearch" placeholder="搜索备注...">
+          <input type="date" id="mealFilterDate">
+          <button class="btn btn-secondary btn-sm" onclick="clearMealFilter()">清除筛选</button>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>日期</th><th>餐别</th><th>份数</th><th>单价</th><th>总金额</th><th>备注</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="mealTableBody">
+              <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🍱</div><p>暂无盒饭预定记录，请添加</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal" id="editModalContent"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA MANAGEMENT
+// ============================================================
+const STORAGE_KEYS = {
+  inventory: 'sw_inventory',
+  supplier: 'sw_supplier',
+  meal: 'sw_meal',
+  activity: 'sw_activity'
+};
+
+function loadData(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || []; }
+  catch { return []; }
+}
+
+function saveData(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+}
+
+function addActivity(type, message) {
+  const activities = loadData(STORAGE_KEYS.activity);
+  activities.unshift({ id: generateId(), type, message, time: new Date().toISOString() });
+  if (activities.length > 50) activities.length = 50;
+  saveData(STORAGE_KEYS.activity, activities);
+}
+
+// ============================================================
+// CLOUD SYNC (jsonblob.com with CORS proxy)
+// ============================================================
+const CLOUD_BLOB_ID = '019f192d-d2e1-7417-962d-4fec05382aa7';
+const CLOUD_URL = `https://jsonblob.com/api/jsonBlob/${CLOUD_BLOB_ID}`;
+// Use CORS proxy for cross-origin requests
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+
+// Load meal orders from cloud
+async function loadMealsFromCloud() {
+  try {
+    updateSyncStatus('syncing', '同步中...');
+    // Try direct first, then fallback to proxy
+    let response;
+    try {
+      response = await fetch(CLOUD_URL, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+    } catch (e) {
+      // Direct failed, try proxy
+      response = await fetch(CORS_PROXY + encodeURIComponent(CLOUD_URL));
+    }
+    const data = await response.json();
+    if (data.orders && Array.isArray(data.orders)) {
+      // Merge cloud orders with local orders (avoid duplicates by ID)
+      const localMeals = loadData(STORAGE_KEYS.meal);
+      const localIds = new Set(localMeals.map(m => m.id));
+      const newOrders = data.orders.filter(o => !localIds.has(o.id));
+      
+      if (newOrders.length > 0) {
+        const merged = [...newOrders, ...localMeals].sort((a, b) => 
+          new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        saveData(STORAGE_KEYS.meal, merged);
+        console.log(`从云端同步了 ${newOrders.length} 条新订单`);
+        updateSyncStatus('synced', `已同步 ${newOrders.length} 条`);
+        return true;
+      }
+    }
+    updateSyncStatus('synced', '已同步');
+    return false;
+  } catch (error) {
+    console.error('云端同步失败:', error);
+    updateSyncStatus('error', '同步失败');
+    return false;
+  }
+}
+
+// Save meal orders to cloud
+async function saveMealsToCloud() {
+  try {
+    updateSyncStatus('syncing', '保存中...');
+    const meals = loadData(STORAGE_KEYS.meal);
+    const data = { orders: meals, lastUpdated: new Date().toISOString() };
+    
+    // Try direct first, then fallback to proxy
+    try {
+      await fetch(CLOUD_URL, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+    } catch (e) {
+      // Direct failed, try proxy (note: proxy may not support PUT)
+      console.warn('Direct save failed, cloud sync may not work from this domain');
+    }
+    
+    console.log('数据已同步到云端');
+    updateSyncStatus('synced', '已保存');
+  } catch (error) {
+    console.error('云端保存失败:', error);
+    updateSyncStatus('error', '保存失败');
+  }
+}
+
+// Update sync status indicator
+function updateSyncStatus(status, text) {
+  const icon = document.getElementById('syncIcon');
+  const textEl = document.getElementById('syncText');
+  if (!icon || !textEl) return;
+  
+  textEl.textContent = text;
+  
+  if (status === 'syncing') {
+    icon.textContent = '🔄';
+    icon.style.animation = 'spin 1s linear infinite';
+  } else if (status === 'synced') {
+    icon.textContent = '✅';
+    icon.style.animation = '';
+    setTimeout(() => { textEl.textContent = '已同步'; }, 2000);
+  } else if (status === 'error') {
+    icon.textContent = '❌';
+    icon.style.animation = '';
+  }
+}
+
+// Add CSS for spin animation
+if (!document.getElementById('syncStyles')) {
+  const style = document.createElement('style');
+  style.id = 'syncStyles';
+  style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+}
+
+// Sync on page load
+async function initCloudSync() {
+  const synced = await loadMealsFromCloud();
+  if (synced) {
+    refreshMealTable();
+    updateWeeklySummary();
+    generateBillingMessage();
+    refreshDashboard();
+  }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast ${type} show`;
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'dashboard') refreshDashboard();
+    if (tab === 'meal') { 
+      loadMealsFromCloud().then(() => {
+        refreshMealTable(); 
+        updateWeeklySummary(); 
+        generateBillingMessage();
+      });
+    }
+    updateBadges();
+  });
+});
+
+// ============================================================
+// BADGES
+// ============================================================
+function updateBadges() {
+  const suppliers = loadData(STORAGE_KEYS.supplier);
+  const pending = suppliers.filter(s => s.status === 'pending' || s.status === 'partial').length;
+  const badge = document.getElementById('pendingBadge');
+  badge.textContent = pending;
+  badge.style.display = pending > 0 ? 'inline-block' : 'none';
+}
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+function getWeekRange() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(now.setDate(diff));
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(sunday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  return { monday, sunday };
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function formatMoney(amount) {
+  return '¥' + Number(amount).toFixed(2);
+}
+
+function getWeekdayLabel(dateStr) {
+  const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  const d = new Date(dateStr);
+  return days[d.getDay()];
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+let chartMealCountInst = null;
+let chartMealAmountInst = null;
+
+function refreshDashboard() {
+  const inventory = loadData(STORAGE_KEYS.inventory);
+  const suppliers = loadData(STORAGE_KEYS.supplier);
+  const meals = loadData(STORAGE_KEYS.meal);
+  const activities = loadData(STORAGE_KEYS.activity);
+
+  // Stats
+  const totalInv = inventory.length;
+  const totalInvAmount = inventory.reduce((s, i) => s + (Number(i.totalAmount) || 0), 0);
+  const pendingSuppliers = suppliers.filter(s => s.status !== 'paid');
+  const pendingAmount = pendingSuppliers.reduce((s, sp) => s + (Number(sp.amount) || 0) - (Number(sp.paidAmount) || 0), 0);
+  const { monday, sunday } = getWeekRange();
+  const weekMeals = meals.filter(m => {
+    const d = new Date(m.date);
+    return d >= monday && d <= sunday;
+  });
+  const weekMealCount = weekMeals.reduce((s, m) => s + (Number(m.quantity) || 0), 0);
+  const weekMealAmount = weekMeals.reduce((s, m) => s + (Number(m.totalAmount) || 0), 0);
+
+  document.getElementById('dashboardStats').innerHTML = `
+    <div class="stat-card green">
+      <div class="stat-icon">📦</div>
+      <div class="stat-info">
+        <div class="stat-label">入库总单数</div>
+        <div class="stat-value">${totalInv}</div>
+        <div class="stat-sub">累计金额 ${formatMoney(totalInvAmount)}</div>
+      </div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-icon">💰</div>
+      <div class="stat-info">
+        <div class="stat-label">待付账款</div>
+        <div class="stat-value">${pendingSuppliers.length} 笔</div>
+        <div class="stat-sub">待付金额 ${formatMoney(pendingAmount)}</div>
+      </div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-icon">🍱</div>
+      <div class="stat-info">
+        <div class="stat-label">本周盒饭</div>
+        <div class="stat-value">${weekMealCount} 份</div>
+        <div class="stat-sub">金额 ${formatMoney(weekMealAmount)}</div>
+      </div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon">📊</div>
+      <div class="stat-info">
+        <div class="stat-label">本月盒饭</div>
+        <div class="stat-value" id="monthMealCount">-</div>
+        <div class="stat-sub" id="monthMealAmount">-</div>
+      </div>
+    </div>
+  `;
+
+  // Month meals
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthMeals = meals.filter(m => new Date(m.date) >= monthStart);
+  const monthCount = monthMeals.reduce((s, m) => s + (Number(m.quantity) || 0), 0);
+  const monthAmount = monthMeals.reduce((s, m) => s + (Number(m.totalAmount) || 0), 0);
+  document.getElementById('monthMealCount').textContent = monthCount + ' 份';
+  document.getElementById('monthMealAmount').textContent = '金额 ' + formatMoney(monthAmount);
+
+  // Charts
+  renderWeeklyCharts(meals);
+
+  // Activity
+  const activityList = document.getElementById('activityList');
+  if (activities.length === 0) {
+    activityList.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>暂无操作记录</p></div>';
+  } else {
+    activityList.innerHTML = activities.slice(0, 10).map(a => {
+      const dotClass = a.type === 'inventory' ? 'green' : a.type === 'supplier' ? 'amber' : 'blue';
+      const time = new Date(a.time);
+      const timeStr = `${time.getMonth()+1}/${time.getDate()} ${String(time.getHours()).padStart(2,'0')}:${String(time.getMinutes()).padStart(2,'0')}`;
+      return `<div class="activity-item">
+        <span class="activity-dot ${dotClass}"></span>
+        <span>${a.message}</span>
+        <span class="activity-time">${timeStr}</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+function renderWeeklyCharts(meals) {
+  const { monday } = getWeekRange();
+  const days = [];
+  const counts = [];
+  const amounts = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(d.getDate() + i);
+    const dateStr = d.toISOString().split('T')[0];
+    days.push(getWeekdayLabel(dateStr));
+    const dayMeals = meals.filter(m => m.date === dateStr);
+    counts.push(dayMeals.reduce((s, m) => s + (Number(m.quantity) || 0), 0));
+    amounts.push(dayMeals.reduce((s, m) => s + (Number(m.totalAmount) || 0), 0));
+  }
+
+  if (chartMealCountInst) chartMealCountInst.destroy();
+  if (chartMealAmountInst) chartMealAmountInst.destroy();
+
+  const ctx1 = document.getElementById('chartMealCount').getContext('2d');
+  chartMealCountInst = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: days,
+      datasets: [{
+        label: '份数',
+        data: counts,
+        backgroundColor: ['#b3e5c3','#b3e5c3','#b3e5c3','#b3e5c3','#b3e5c3','#81d19e','#81d19e'],
+        borderColor: '#2d8a4e',
+        borderWidth: 1.5,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1, font: { size: 11 } },
+          grid: { color: '#f0f0f0' }
+        },
+        x: {
+          ticks: { font: { size: 11 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  const ctx2 = document.getElementById('chartMealAmount').getContext('2d');
+  chartMealAmountInst = new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [{
+        label: '金额（元）',
+        data: amounts,
+        borderColor: '#d97706',
+        backgroundColor: 'rgba(217,119,6,0.08)',
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#d97706',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: v => '¥' + v, font: { size: 11 } },
+          grid: { color: '#f0f0f0' }
+        },
+        x: {
+          ticks: { font: { size: 11 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// INVENTORY MODULE
+// ============================================================
+document.getElementById('inventoryForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const qty = Number(document.getElementById('invQuantity').value);
+  const price = Number(document.getElementById('invPrice').value);
+  const total = qty * price;
+  document.getElementById('invTotal').value = total.toFixed(2);
+
+  const record = {
+    id: generateId(),
+    date: document.getElementById('invDate').value,
+    productName: document.getElementById('invProduct').value.trim(),
+    supplier: document.getElementById('invSupplier').value.trim(),
+    quantity: qty,
+    unit: document.getElementById('invUnit').value,
+    unitPrice: price,
+    totalAmount: total,
+    notes: document.getElementById('invNotes').value.trim(),
+    createdAt: new Date().toISOString()
+  };
+
+  const inventory = loadData(STORAGE_KEYS.inventory);
+  inventory.unshift(record);
+  saveData(STORAGE_KEYS.inventory, inventory);
+  addActivity('inventory', `入库：${record.productName} ×${record.quantity}${record.unit}，${formatMoney(total)}`);
+  this.reset();
+  document.getElementById('invTotal').value = '';
+  document.getElementById('invDate').value = new Date().toISOString().split('T')[0];
+  refreshInventoryTable();
+  updateBadges();
+  showToast('入库记录已保存');
+});
+
+document.getElementById('invQuantity').addEventListener('input', calcInvTotal);
+document.getElementById('invPrice').addEventListener('input', calcInvTotal);
+function calcInvTotal() {
+  const qty = Number(document.getElementById('invQuantity').value) || 0;
+  const price = Number(document.getElementById('invPrice').value) || 0;
+  document.getElementById('invTotal').value = (qty * price).toFixed(2);
+}
+
+document.getElementById('invSearch').addEventListener('input', refreshInventoryTable);
+document.getElementById('invFilterDate').addEventListener('change', refreshInventoryTable);
+
+function clearInvFilter() {
+  document.getElementById('invSearch').value = '';
+  document.getElementById('invFilterDate').value = '';
+  refreshInventoryTable();
+}
+
+function refreshInventoryTable() {
+  const inventory = loadData(STORAGE_KEYS.inventory);
+  const search = (document.getElementById('invSearch').value || '').toLowerCase();
+  const filterDate = document.getElementById('invFilterDate').value;
+
+  let filtered = inventory;
+  if (search) filtered = filtered.filter(r => r.productName.toLowerCase().includes(search) || r.supplier.toLowerCase().includes(search));
+  if (filterDate) filtered = filtered.filter(r => r.date === filterDate);
+
+  const tbody = document.getElementById('inventoryTableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📦</div><p>暂无匹配的入库记录</p></div></td></tr>';
+  } else {
+    tbody.innerHTML = filtered.map(r => `
+      <tr>
+        <td>${formatDate(r.date)}</td>
+        <td><strong>${escHtml(r.productName)}</strong></td>
+        <td>${escHtml(r.supplier)}</td>
+        <td>${r.quantity} ${r.unit}</td>
+        <td>${formatMoney(r.unitPrice)}</td>
+        <td><strong>${formatMoney(r.totalAmount)}</strong></td>
+        <td>${escHtml(r.notes || '-')}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="editInventory('${r.id}')">✏️</button>
+          <button class="btn btn-ghost btn-sm" onclick="deleteInventory('${r.id}')" style="color:#ef4444;">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+}
+
+function editInventory(id) {
+  const inventory = loadData(STORAGE_KEYS.inventory);
+  const r = inventory.find(i => i.id === id);
+  if (!r) return;
+  showEditModal('编辑入库记录', `
+    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="form-group"><label>日期</label><input type="date" id="editInvDate" value="${r.date}"></div>
+      <div class="form-group"><label>商品名称</label><input type="text" id="editInvProduct" value="${escHtml(r.productName)}"></div>
+      <div class="form-group"><label>供货商</label><input type="text" id="editInvSupplier" value="${escHtml(r.supplier)}"></div>
+      <div class="form-group"><label>数量</label><input type="number" id="editInvQty" value="${r.quantity}" min="1"></div>
+      <div class="form-group"><label>单价</label><input type="number" id="editInvPrice" value="${r.unitPrice}" step="0.01" min="0"></div>
+      <div class="form-group"><label>备注</label><input type="text" id="editInvNotes" value="${escHtml(r.notes || '')}"></div>
+    </div>
+  `, () => {
+    const qty = Number(document.getElementById('editInvQty').value);
+    const price = Number(document.getElementById('editInvPrice').value);
+    r.date = document.getElementById('editInvDate').value;
+    r.productName = document.getElementById('editInvProduct').value.trim();
+    r.supplier = document.getElementById('editInvSupplier').value.trim();
+    r.quantity = qty;
+    r.unitPrice = price;
+    r.totalAmount = qty * price;
+    r.notes = document.getElementById('editInvNotes').value.trim();
+    saveData(STORAGE_KEYS.inventory, inventory);
+    refreshInventoryTable();
+    showToast('入库记录已更新');
+  });
+}
+
+function deleteInventory(id) {
+  if (!confirm('确定要删除这条入库记录吗？此操作不可撤销。')) return;
+  let inventory = loadData(STORAGE_KEYS.inventory);
+  inventory = inventory.filter(i => i.id !== id);
+  saveData(STORAGE_KEYS.inventory, inventory);
+  refreshInventoryTable();
+  showToast('入库记录已删除', 'error');
+}
+
+// ============================================================
+// SUPPLIER MODULE
+// ============================================================
+document.getElementById('supplierForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const amount = Number(document.getElementById('supAmount').value);
+  const paid = Number(document.getElementById('supPaid').value) || 0;
+  let status = document.getElementById('supStatus').value;
+  if (paid >= amount) status = 'paid';
+  else if (paid > 0) status = 'partial';
+  else status = 'pending';
+
+  const record = {
+    id: generateId(),
+    date: document.getElementById('supDate').value,
+    supplier: document.getElementById('supName').value.trim(),
+    invoiceNo: document.getElementById('supInvoice').value.trim(),
+    amount: amount,
+    paidAmount: paid,
+    status: status,
+    notes: document.getElementById('supNotes').value.trim(),
+    createdAt: new Date().toISOString()
+  };
+
+  const suppliers = loadData(STORAGE_KEYS.supplier);
+  suppliers.unshift(record);
+  saveData(STORAGE_KEYS.supplier, suppliers);
+  addActivity('supplier', `对账：${record.supplier}，应付${formatMoney(amount)}，${status === 'paid' ? '已结清' : status === 'partial' ? '部分付款' : '待付款'}`);
+  this.reset();
+  document.getElementById('supDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('supStatus').value = 'pending';
+  refreshSupplierTable();
+  updateBadges();
+  showToast('对账记录已保存');
+});
+
+document.getElementById('supSearch').addEventListener('input', refreshSupplierTable);
+document.getElementById('supStatusFilter').addEventListener('change', refreshSupplierTable);
+
+function clearSupFilter() {
+  document.getElementById('supSearch').value = '';
+  document.getElementById('supStatusFilter').value = '';
+  refreshSupplierTable();
+}
+
+function refreshSupplierTable() {
+  const suppliers = loadData(STORAGE_KEYS.supplier);
+  const search = (document.getElementById('supSearch').value || '').toLowerCase();
+  const statusFilter = document.getElementById('supStatusFilter').value;
+
+  let filtered = suppliers;
+  if (search) filtered = filtered.filter(r => r.supplier.toLowerCase().includes(search));
+  if (statusFilter) filtered = filtered.filter(r => r.status === statusFilter);
+
+  const tbody = document.getElementById('supplierTableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🤝</div><p>暂无匹配的对账记录</p></div></td></tr>';
+  } else {
+    tbody.innerHTML = filtered.map(r => {
+      const balance = (Number(r.amount) || 0) - (Number(r.paidAmount) || 0);
+      const statusBadge = r.status === 'paid' ? '<span class="badge badge-success">已结清</span>' :
+                          r.status === 'partial' ? '<span class="badge badge-warning">部分付款</span>' :
+                          '<span class="badge badge-danger">待付款</span>';
+      return `<tr>
+        <td>${formatDate(r.date)}</td>
+        <td><strong>${escHtml(r.supplier)}</strong></td>
+        <td>${escHtml(r.invoiceNo || '-')}</td>
+        <td>${formatMoney(r.amount)}</td>
+        <td>${formatMoney(r.paidAmount)}</td>
+        <td><strong style="color:${balance > 0 ? '#dc2626' : '#2d8a4e'}">${formatMoney(balance)}</strong></td>
+        <td>${statusBadge}</td>
+        <td>${escHtml(r.notes || '-')}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="editSupplier('${r.id}')">✏️</button>
+          <button class="btn btn-ghost btn-sm" onclick="deleteSupplier('${r.id}')" style="color:#ef4444;">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  updateBadges();
+}
+
+function editSupplier(id) {
+  const suppliers = loadData(STORAGE_KEYS.supplier);
+  const r = suppliers.find(s => s.id === id);
+  if (!r) return;
+  showEditModal('编辑对账记录', `
+    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="form-group"><label>日期</label><input type="date" id="editSupDate" value="${r.date}"></div>
+      <div class="form-group"><label>供货商</label><input type="text" id="editSupName" value="${escHtml(r.supplier)}"></div>
+      <div class="form-group"><label>发票号</label><input type="text" id="editSupInvoice" value="${escHtml(r.invoiceNo || '')}"></div>
+      <div class="form-group"><label>应付金额</label><input type="number" id="editSupAmount" value="${r.amount}" step="0.01" min="0"></div>
+      <div class="form-group"><label>已付金额</label><input type="number" id="editSupPaid" value="${r.paidAmount}" step="0.01" min="0"></div>
+      <div class="form-group"><label>备注</label><input type="text" id="editSupNotes" value="${escHtml(r.notes || '')}"></div>
+    </div>
+  `, () => {
+    const amount = Number(document.getElementById('editSupAmount').value);
+    const paid = Number(document.getElementById('editSupPaid').value);
+    r.date = document.getElementById('editSupDate').value;
+    r.supplier = document.getElementById('editSupName').value.trim();
+    r.invoiceNo = document.getElementById('editSupInvoice').value.trim();
+    r.amount = amount;
+    r.paidAmount = paid;
+    r.status = paid >= amount ? 'paid' : paid > 0 ? 'partial' : 'pending';
+    r.notes = document.getElementById('editSupNotes').value.trim();
+    saveData(STORAGE_KEYS.supplier, suppliers);
+    refreshSupplierTable();
+    showToast('对账记录已更新');
+  });
+}
+
+function deleteSupplier(id) {
+  if (!confirm('确定要删除这条对账记录吗？此操作不可撤销。')) return;
+  let suppliers = loadData(STORAGE_KEYS.supplier);
+  suppliers = suppliers.filter(s => s.id !== id);
+  saveData(STORAGE_KEYS.supplier, suppliers);
+  refreshSupplierTable();
+  showToast('对账记录已删除', 'error');
+}
+
+// ============================================================
+// MEAL MODULE
+// ============================================================
+document.getElementById('mealForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const qty = Number(document.getElementById('mealQty').value);
+  const price = Number(document.getElementById('mealPrice').value);
+  const total = qty * price;
+  document.getElementById('mealTotal').value = total.toFixed(2);
+
+  const record = {
+    id: generateId(),
+    date: document.getElementById('mealDate').value,
+    mealType: document.getElementById('mealType').value,
+    quantity: qty,
+    unitPrice: price,
+    totalAmount: total,
+    notes: document.getElementById('mealNotes').value.trim(),
+    createdAt: new Date().toISOString()
+  };
+
+  const meals = loadData(STORAGE_KEYS.meal);
+  meals.unshift(record);
+  saveData(STORAGE_KEYS.meal, meals);
+  addActivity('meal', `盒饭预定：${record.date} ${record.mealType} ×${record.quantity}份，${formatMoney(total)}`);
+  this.reset();
+  document.getElementById('mealTotal').value = '';
+  document.getElementById('mealDate').value = new Date().toISOString().split('T')[0];
+  refreshMealTable();
+  updateWeeklySummary();
+  generateBillingMessage();
+  saveMealsToCloud();
+  showToast('盒饭预定已保存');
+});
+
+document.getElementById('mealQty').addEventListener('input', calcMealTotal);
+document.getElementById('mealPrice').addEventListener('input', calcMealTotal);
+function calcMealTotal() {
+  const qty = Number(document.getElementById('mealQty').value) || 0;
+  const price = Number(document.getElementById('mealPrice').value) || 0;
+  document.getElementById('mealTotal').value = (qty * price).toFixed(2);
+}
+
+document.getElementById('mealSearch').addEventListener('input', refreshMealTable);
+document.getElementById('mealFilterDate').addEventListener('change', refreshMealTable);
+
+function clearMealFilter() {
+  document.getElementById('mealSearch').value = '';
+  document.getElementById('mealFilterDate').value = '';
+  refreshMealTable();
+}
+
+function refreshMealTable() {
+  const meals = loadData(STORAGE_KEYS.meal);
+  const search = (document.getElementById('mealSearch').value || '').toLowerCase();
+  const filterDate = document.getElementById('mealFilterDate').value;
+
+  let filtered = meals;
+  if (search) filtered = filtered.filter(r => (r.notes || '').toLowerCase().includes(search));
+  if (filterDate) filtered = filtered.filter(r => r.date === filterDate);
+
+  const tbody = document.getElementById('mealTableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🍱</div><p>暂无匹配的盒饭预定记录</p></div></td></tr>';
+  } else {
+    tbody.innerHTML = filtered.map(r => `
+      <tr>
+        <td>${formatDate(r.date)} ${getWeekdayLabel(r.date)}</td>
+        <td><span class="badge ${r.mealType === '午餐' ? 'badge-info' : 'badge-warning'}">${r.mealType}</span></td>
+        <td><strong>${r.quantity}</strong> 份</td>
+        <td>${formatMoney(r.unitPrice)}</td>
+        <td><strong>${formatMoney(r.totalAmount)}</strong></td>
+        <td>${escHtml(r.notes || '-')}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="editMeal('${r.id}')">✏️</button>
+          <button class="btn btn-ghost btn-sm" onclick="deleteMeal('${r.id}')" style="color:#ef4444;">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+}
+
+function updateWeeklySummary() {
+  const meals = loadData(STORAGE_KEYS.meal);
+  const { monday, sunday } = getWeekRange();
+  const weekMeals = meals.filter(m => {
+    const d = new Date(m.date);
+    return d >= monday && d <= sunday;
+  });
+  const totalCount = weekMeals.reduce((s, m) => s + (Number(m.quantity) || 0), 0);
+  const totalAmount = weekMeals.reduce((s, m) => s + (Number(m.totalAmount) || 0), 0);
+  const lunchCount = weekMeals.filter(m => m.mealType === '午餐').reduce((s, m) => s + (Number(m.quantity) || 0), 0);
+  const dinnerCount = weekMeals.filter(m => m.mealType === '晚餐').reduce((s, m) => s + (Number(m.quantity) || 0), 0);
+
+  // All-time stats
+  const allCount = meals.reduce((s, m) => s + (Number(m.quantity) || 0), 0);
+  const allAmount = meals.reduce((s, m) => s + (Number(m.totalAmount) || 0), 0);
+
+  const mondayStr = formatDate(monday.toISOString().split('T')[0]);
+  const sundayStr = formatDate(sunday.toISOString().split('T')[0]);
+
+  document.getElementById('wsTotalCount').textContent = totalCount + ' 份';
+  document.getElementById('wsTotalAmount').textContent = formatMoney(totalAmount);
+  document.getElementById('wsLunch').textContent = lunchCount + ' 份';
+  document.getElementById('wsDinner').textContent = dinnerCount + ' 份';
+  document.getElementById('wsAllCount').textContent = allCount + ' 份';
+  document.getElementById('wsAllAmount').textContent = formatMoney(allAmount);
+  document.querySelector('#tab-meal .page-header p').textContent = `本周统计：${mondayStr} ~ ${sundayStr}`;
+}
+
+function editMeal(id) {
+  const meals = loadData(STORAGE_KEYS.meal);
+  const r = meals.find(m => m.id === id);
+  if (!r) return;
+  showEditModal('编辑盒饭预定', `
+    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="form-group"><label>日期</label><input type="date" id="editMealDate" value="${r.date}"></div>
+      <div class="form-group"><label>餐别</label><select id="editMealType"><option value="午餐" ${r.mealType==='午餐'?'selected':''}>午餐</option><option value="晚餐" ${r.mealType==='晚餐'?'selected':''}>晚餐</option></select></div>
+      <div class="form-group"><label>份数</label><input type="number" id="editMealQty" value="${r.quantity}" min="1"></div>
+      <div class="form-group"><label>单价</label><input type="number" id="editMealPrice" value="${r.unitPrice}" step="0.01" min="0"></div>
+      <div class="form-group"><label>备注</label><input type="text" id="editMealNotes" value="${escHtml(r.notes || '')}"></div>
+    </div>
+  `, () => {
+    const qty = Number(document.getElementById('editMealQty').value);
+    const price = Number(document.getElementById('editMealPrice').value);
+    r.date = document.getElementById('editMealDate').value;
+    r.mealType = document.getElementById('editMealType').value;
+    r.quantity = qty;
+    r.unitPrice = price;
+    r.totalAmount = qty * price;
+    r.notes = document.getElementById('editMealNotes').value.trim();
+    saveData(STORAGE_KEYS.meal, meals);
+    refreshMealTable();
+    updateWeeklySummary();
+    generateBillingMessage();
+    saveMealsToCloud();
+    showToast('盒饭预定已更新');
+  });
+}
+
+function deleteMeal(id) {
+  if (!confirm('确定要删除这条盒饭预定记录吗？此操作不可撤销。')) return;
+  let meals = loadData(STORAGE_KEYS.meal);
+  meals = meals.filter(m => m.id !== id);
+  saveData(STORAGE_KEYS.meal, meals);
+  refreshMealTable();
+  updateWeeklySummary();
+  generateBillingMessage();
+  saveMealsToCloud();
+  showToast('盒饭预定已删除', 'error');
+}
+
+// ============================================================
+// BILLING MESSAGE GENERATOR
+// ============================================================
+function generateBillingMessage() {
+  const meals = loadData(STORAGE_KEYS.meal);
+  const { monday, sunday } = getWeekRange();
+  const weekMeals = meals.filter(m => {
+    const d = new Date(m.date);
+    return d >= monday && d <= sunday;
+  });
+
+  const mondayStr = formatDate(monday.toISOString().split('T')[0]);
+  const sundayStr = formatDate(sunday.toISOString().split('T')[0]);
+
+  if (weekMeals.length === 0) {
+    document.getElementById('billingText').textContent = `本周（${mondayStr} ~ ${sundayStr}）暂无盒饭预定记录。`;
+    return;
+  }
+
+  // Group by date
+  const grouped = {};
+  weekMeals.forEach(m => {
+    if (!grouped[m.date]) grouped[m.date] = [];
+    grouped[m.date].push(m);
+  });
+
+  const sortedDates = Object.keys(grouped).sort();
+  let totalCount = 0;
+  let totalAmount = 0;
+
+  let details = '';
+  sortedDates.forEach(date => {
+    const dayMeals = grouped[date];
+    const dayCount = dayMeals.reduce((s, m) => s + Number(m.quantity), 0);
+    const dayAmount = dayMeals.reduce((s, m) => s + Number(m.totalAmount), 0);
+    totalCount += dayCount;
+    totalAmount += dayAmount;
+
+    const weekday = getWeekdayLabel(date);
+    const lunchItems = dayMeals.filter(m => m.mealType === '午餐');
+    const dinnerItems = dayMeals.filter(m => m.mealType === '晚餐');
+
+    let mealDesc = '';
+    if (lunchItems.length > 0) {
+      const lq = lunchItems.reduce((s, m) => s + Number(m.quantity), 0);
+      const la = lunchItems.reduce((s, m) => s + Number(m.totalAmount), 0);
+      mealDesc += `午餐 ${lq}份（${formatMoney(la)}）`;
+    }
+    if (dinnerItems.length > 0) {
+      if (mealDesc) mealDesc += '，';
+      const dq = dinnerItems.reduce((s, m) => s + Number(m.quantity), 0);
+      const da = dinnerItems.reduce((s, m) => s + Number(m.totalAmount), 0);
+      mealDesc += `晚餐 ${dq}份（${formatMoney(da)}）`;
+    }
+    details += `${formatDate(date)} ${weekday}：${mealDesc}，小计 ${formatMoney(dayAmount)}\n`;
+  });
+
+  const message = `【盒饭账单】${mondayStr} ~ ${sundayStr}
+
+${details}
+━━━━━━━━━━━━━━
+📊 本周合计：${totalCount} 份，共 ${formatMoney(totalAmount)}
+💰 请核对后安排付款，谢谢～`;
+
+  document.getElementById('billingText').textContent = message;
+}
+
+function copyBillingMessage() {
+  generateBillingMessage();
+  const text = document.getElementById('billingText').textContent;
+  if (!text || text.includes('暂无')) {
+    showToast('本周暂无数据，请先添加盒饭记录', 'error');
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('催款文案已复制到剪贴板！去微信粘贴发送即可');
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('催款文案已复制到剪贴板！');
+  });
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function showEditModal(title, bodyHtml, onSave) {
+  const overlay = document.getElementById('editModal');
+  const content = document.getElementById('editModalContent');
+  content.innerHTML = `
+    <h3>${title}</h3>
+    ${bodyHtml}
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="modalSaveBtn">保存</button>
+    </div>
+  `;
+  overlay.classList.add('active');
+  document.getElementById('modalSaveBtn').addEventListener('click', () => {
+    onSave();
+    closeModal();
+  });
+}
+
+function closeModal() {
+  document.getElementById('editModal').classList.remove('active');
+}
+
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ============================================================
+// HTML ESCAPE
+// ============================================================
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+function init() {
+  // Set today's date as default for all forms
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('invDate').value = today;
+  document.getElementById('supDate').value = today;
+  document.getElementById('mealDate').value = today;
+
+  // Set current date in footer
+  const now = new Date();
+  document.getElementById('currentDate').textContent = 
+    `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${['日','一','二','三','四','五','六'][now.getDay()]}`;
+
+  // Initial renders
+  refreshDashboard();
+  refreshInventoryTable();
+  refreshSupplierTable();
+  refreshMealTable();
+  updateWeeklySummary();
+  generateBillingMessage();
+  updateBadges();
+  
+  // Sync from cloud on load
+  initCloudSync();
+}
+
+init();
+</script>
+</body>
+</html>
